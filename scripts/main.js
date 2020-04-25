@@ -9,6 +9,8 @@ function solveImage(canvasCtx, image){
 
     var startPosition = findStartPos(imageData, image.width);
 
+    checkPossiblePaths(imageData, image.width, image.height, startPosition[0], startPosition[1]);
+    
     /*
     for(var rowIndex = 0; rowIndex < image.width; rowIndex++){
         for(var columnIndex = 0; columnIndex < image.columnIndex; columnIndex++){
@@ -22,6 +24,54 @@ function solveImage(canvasCtx, image){
         }
     }
     */
+}
+
+function valid(imageData, width, rowIndex, columnIndex){
+    var currentPixelIndex = 4 * (( columnIndex ) + rowIndex * width);
+    // IF NOT WALL OR ALREADY VISITED
+    if( imageData[currentPixelIndex]     == 0   &&    
+        imageData[currentPixelIndex + 1] == 0   &&
+        imageData[currentPixelIndex + 2] == 0   
+    ){
+        return false;
+    }
+    else{
+        return true;
+    }
+}
+
+function checkPossiblePaths(imageData, width, height, rowIndex, columnIndex){
+    // UP - LEFT - DOWN - RIGHT
+    // CHANGE THE POSITION OF VALID CALL AND ROWINDEX > 0 FOR PERFORMANCE
+    if(valid(imageData, width, rowIndex - 1, columnIndex) && rowIndex > 0){
+        // UP IS VALID
+        ctx.fillStyle = 'red';
+        ctx.fillRect(columnIndex, rowIndex, 3, 3);
+        checkPossiblePaths(imageData, width, height, rowIndex - 1, columnIndex);
+    }
+    else if(valid(imageData, width, rowIndex, columnIndex - 1) && columnIndex > 0){
+        // LEFT IS VALID
+        ctx.fillStyle = 'red';
+        ctx.fillRect(columnIndex, rowIndex, 3, 3);
+        checkPossiblePaths(imageData, width, height, rowIndex , columnIndex - 1);
+    }
+    else if(valid(imageData, width, rowIndex + 1, columnIndex) && rowIndex < height){
+        // DOWN IS VALID
+        ctx.fillStyle = 'red';
+        ctx.fillRect(columnIndex, rowIndex, 3, 3);
+        checkPossiblePaths(imageData, width, height, rowIndex + 1 , columnIndex );
+    }
+    else if(valid(imageData, width, rowIndex, columnIndex + 1) && columnIndex < width){
+        // RIGHT IS VALID
+        ctx.fillStyle = 'red';
+        ctx.fillRect(columnIndex, rowIndex, 3, 3);
+        checkPossiblePaths(imageData, width, height, rowIndex , columnIndex + 1);
+    }
+    else{
+        // NO POSSIBLE PATH FOR THIS PIXEL
+        // BACKTRACK
+        return;
+    }
 }
 
 
