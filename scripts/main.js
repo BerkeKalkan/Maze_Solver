@@ -1,37 +1,34 @@
+var nodeQueue = [];
+var visitedNodes = [];
+var traveledPath = [];
+
 function solveImage(canvasCtx, image){
     var imageData = canvasCtx.getImageData(0, 0, image.width, image.height).data;
 
-
-    // Breadth first search
-    var nodeQueue = [];
-    var visitedNodes = [];
-    var traveledPath = [];
+    // Depth First Search
 
     var startPosition = findStartPos(imageData, image.width);
+    //console.log(valid(imageData, image.width, 15, 802));
 
-    checkPossiblePaths(imageData, image.width, image.height, startPosition[0], startPosition[1]);
-    
-    /*
-    for(var rowIndex = 0; rowIndex < image.width; rowIndex++){
-        for(var columnIndex = 0; columnIndex < image.columnIndex; columnIndex++){
-            var currentPixelIndex = 4 * (( columnIndex ) + rowIndex * image.width);
-            
-            //imageData[currentPixelIndex]     Red
-            //imageData[currentPixelIndex + 1] Green
-            //imageData[currentPixelIndex + 2] Blue
-            //imageData[currentPixelIndex + 3] ALPHA
-
-        }
+    if(includesArr([startPosition], [-1, -1])){
+        // START POSITION ISNT PRESENT
+        alert('Start position isn\'t set');
     }
-    */
+    else{
+        checkPossiblePaths(imageData, image.width, image.height, startPosition[0], startPosition[1]);
+    }
 }
 
 function valid(imageData, width, rowIndex, columnIndex){
+    //console.log(rowIndex, columnIndex);
     var currentPixelIndex = 4 * (( columnIndex ) + rowIndex * width);
+    //console.log(rowIndex, columnIndex);
     // IF NOT WALL OR ALREADY VISITED
-    if( imageData[currentPixelIndex]     == 0   &&    
+    if( 
+        (imageData[currentPixelIndex]     == 0  &&
         imageData[currentPixelIndex + 1] == 0   &&
-        imageData[currentPixelIndex + 2] == 0   
+        imageData[currentPixelIndex + 2] == 0)  ||
+        includesArr(visitedNodes, [rowIndex, columnIndex])
     ){
         return false;
     }
@@ -41,6 +38,11 @@ function valid(imageData, width, rowIndex, columnIndex){
 }
 
 function checkPossiblePaths(imageData, width, height, rowIndex, columnIndex){
+    //console.log(rowIndex, columnIndex);
+
+    //console.log(traveledPath);
+    traveledPath.push([rowIndex , columnIndex]);
+    visitedNodes.push([rowIndex , columnIndex]);
     // UP - LEFT - DOWN - RIGHT
     // CHANGE THE POSITION OF VALID CALL AND ROWINDEX > 0 FOR PERFORMANCE
     if(valid(imageData, width, rowIndex - 1, columnIndex) && rowIndex > 0){
@@ -70,10 +72,31 @@ function checkPossiblePaths(imageData, width, height, rowIndex, columnIndex){
     else{
         // NO POSSIBLE PATH FOR THIS PIXEL
         // BACKTRACK
-        return;
+        var poppedItem = traveledPath.pop();
+        console.log(traveledPath[traveledPath.size - 1]);
+        var newPixel = traveledPath[traveledPath.length - 1];
+        checkPossiblePaths(imageData, width, height, newPixel[0] , newPixel[1]);
     }
 }
 
+// INTENDED TO WORK WITH SAME LENGTH ARRAYS
+function includesArr(arr1, arr2){
+    //console.log(arr1, arr2);
+    for(var i = 0; i < arr1.length;i++){
+        var equalElement = 0;
+        // first array
+        for(var j = 0; j < arr1[i].length; j++){
+            //console.log(arr1[i][j], arr2[j]);
+            if(arr1[i][j] == arr2[j]){
+                equalElement++;
+            }
+            if(equalElement == arr2.length){
+                return true;
+            }
+        }
+    }
+    return false;
+}
 
 function findStartPos(imageData, width){
     for(var rowIndex = 0; rowIndex < width; rowIndex++){
